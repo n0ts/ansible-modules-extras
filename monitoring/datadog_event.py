@@ -22,7 +22,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
-# Import Datadog
+import platform
+
 try:
     from datadog import initialize, api
     HAS_DATADOG = True
@@ -70,6 +71,11 @@ options:
         required: false
         default: normal
         choices: [normal, low]
+    host:
+        designated: ["Host name to associate with the event."]
+        required: false
+        default: "{{ ansible_hostname }}"
+        version_added: "2.2"
     tags:
         description: ["Comma separated list of tags to apply to the event."]
         required: false
@@ -105,7 +111,6 @@ datadog_event: title="Testing from ansible" text="Test!"
                tags=aa,bb,#host:{{ inventory_hostname }}
 '''
 
-# Import Datadog
 def main():
     module = AnsibleModule(
         argument_spec=dict(
@@ -117,6 +122,7 @@ def main():
             priority=dict(
                 required=False, default='normal', choices=['normal', 'low']
             ),
+            host=dict(required=False, default=None),
             tags=dict(required=False, default=None, type='list'),
             alert_type=dict(
                 required=False, default='info',
@@ -143,8 +149,11 @@ def main():
 
 def _post_event(module):
     try:
+        if module.params['host'] is None:
+            module.params['host'] = platform.node().split('.')[0];
         msg = api.Event.create(title=module.params['title'],
                                text=module.params['text'],
+                               host=module.params['host'],
                                tags=module.params['tags'],
                                priority=module.params['priority'],
                                alert_type=module.params['alert_type'],
