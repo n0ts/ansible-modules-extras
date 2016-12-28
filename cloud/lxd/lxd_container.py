@@ -19,6 +19,10 @@
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
 DOCUMENTATION = '''
 ---
 module: lxd_container
@@ -179,10 +183,10 @@ EXAMPLES = '''
 - hosts: localhost
   connection: local
   tasks:
-    - name: Restart a container
+    - name: Delete a container
       lxd_container:
         name: mycontainer
-        state: restarted
+        state: absent
 
 # An example for restarting a container
 - hosts: localhost
@@ -364,7 +368,7 @@ class LXDContainerManagement(object):
         self.actions.append('restart')
 
     def _delete_container(self):
-        return self.client.do('DELETE', '/1.0/containers/{0}'.format(self.name))
+        self.client.do('DELETE', '/1.0/containers/{0}'.format(self.name))
         self.actions.append('delete')
 
     def _freeze_container(self):
@@ -446,7 +450,8 @@ class LXDContainerManagement(object):
         if self.old_state != 'absent':
             if self.old_state == 'frozen':
                 self._unfreeze_container()
-            self._stop_container()
+            if self.old_state != 'stopped':
+                self._stop_container()
             self._delete_container()
 
     def _frozen(self):

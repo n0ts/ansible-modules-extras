@@ -18,6 +18,10 @@
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
 DOCUMENTATION = '''
 ---
 module: vca_nat
@@ -53,8 +57,8 @@ EXAMPLES = '''
        state: 'present'
        nat_rules:
          - rule_type: SNAT
-           original_ip: 192.168.2.10
-           translated_ip: 107.189.95.208
+           original_ip: 192.0.2.42
+           translated_ip: 203.0.113.23
 
 #example for a DNAT
 - hosts: localhost
@@ -66,9 +70,9 @@ EXAMPLES = '''
        state: 'present'
        nat_rules:
          - rule_type: DNAT
-           original_ip: 107.189.95.208
+           original_ip: 203.0.113.23
            original_port: 22
-           translated_ip: 192.168.2.10
+           translated_ip: 192.0.2.42
            translated_port: 22
 
 '''

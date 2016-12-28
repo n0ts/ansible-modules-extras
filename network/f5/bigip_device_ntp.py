@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
+# Copyright 2016 F5 Networks Inc.
+#
 # This file is part of Ansible
 #
 # Ansible is free software: you can redistribute it and/or modify
@@ -15,6 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
 
 DOCUMENTATION = '''
 ---
@@ -60,7 +66,7 @@ EXAMPLES = '''
 - name: Set NTP server
   bigip_device_ntp:
       ntp_servers:
-          - "192.168.10.12"
+          - "192.0.2.23"
       password: "secret"
       server: "lb.mydomain.com"
       user: "admin"
@@ -82,7 +88,7 @@ ntp_servers:
     description: The NTP servers that were set on the device
     returned: changed
     type: list
-    sample: ["192.168.10.10", "172.27.10.10"]
+    sample: ["192.0.2.23", "192.0.2.42"]
 timezone:
     description: The timezone that was set on the device
     returned: changed

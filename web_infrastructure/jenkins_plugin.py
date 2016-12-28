@@ -32,6 +32,10 @@ import time
 import urllib
 
 
+ANSIBLE_METADATA = {'status': ['preview'],
+                    'supported_by': 'community',
+                    'version': '1.0'}
+
 DOCUMENTATION = '''
 ---
 module: jenkins_plugin
@@ -218,7 +222,7 @@ EXAMPLES = '''
       register: my_jenkins_plugin_unversioned
       when: >
         'version' not in item.value
-      with_dict: my_jenkins_plugins
+      with_dict: "{{ my_jenkins_plugins }}"
 
     - name: Install plugins with a specific version
       jenkins_plugin:
@@ -227,7 +231,7 @@ EXAMPLES = '''
       register: my_jenkins_plugin_versioned
       when: >
         'version' in item.value
-      with_dict: my_jenkins_plugins
+      with_dict: "{{ my_jenkins_plugins }}"
 
     - name: Initiate the fact
       set_fact:
@@ -237,13 +241,13 @@ EXAMPLES = '''
       set_fact:
         jenkins_restart_required: yes
       when: item.changed
-      with_items: my_jenkins_plugin_versioned.results
+      with_items: "{{ my_jenkins_plugin_versioned.results }}"
 
     - name: Check if restart is required by any of the unversioned plugins
       set_fact:
         jenkins_restart_required: yes
       when: item.changed
-      with_items: my_jenkins_plugin_unversioned.results
+      with_items: "{{ my_jenkins_plugin_unversioned.results }}"
 
     - name: Restart Jenkins if required
       service:
@@ -251,7 +255,6 @@ EXAMPLES = '''
         state: restarted
       when: jenkins_restart_required
 
-    # Requires python-httplib2 to be installed on the guest
     - name: Wait for Jenkins to start up
       uri:
         url: http://localhost:8080
@@ -277,7 +280,7 @@ EXAMPLES = '''
         state: "{{ 'pinned' if item.value['pinned'] else 'unpinned'}}"
       when: >
         'pinned' in item.value
-      with_dict: my_jenkins_plugins
+      with_dict: "{{ my_jenkins_plugins }}"
 
     - name: Plugin enabling
       jenkins_plugin:
@@ -285,7 +288,7 @@ EXAMPLES = '''
         state: "{{ 'enabled' if item.value['enabled'] else 'disabled'}}"
       when: >
         'enabled' in item.value
-      with_dict: my_jenkins_plugins
+      with_dict: "{{ my_jenkins_plugins }}"
 '''
 
 RETURN = '''
@@ -564,7 +567,7 @@ class JenkinsPlugin(object):
                 msg_exception="Updates download failed.")
 
             # Write the updates file
-            updates_file = tempfile.mktemp()
+            updates_file = tempfile.mkstemp()
 
             try:
                 fd = open(updates_file, 'wb')
@@ -641,7 +644,7 @@ class JenkinsPlugin(object):
 
     def _write_file(self, f, data):
         # Store the plugin into a temp file and then move it
-        tmp_f = tempfile.mktemp()
+        tmp_f = tempfile.mkstemp()
 
         try:
             fd = open(tmp_f, 'wb')
